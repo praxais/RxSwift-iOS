@@ -7,19 +7,34 @@
 //
 
 import UIKit
+import RxSwift
 
 class ViewController: UIViewController {
-
+    private let disposeBag = DisposeBag()
+    
+    @IBAction func buttonClicked(_ sender: UIButton) {
+        myObservable(myValue: "My Value").subscribe(onNext: { (value) in
+            print("Xais -> \(value)")
+        }, onError: { (error) in
+            print("XaisError -> \(error.localizedDescription)")
+        }, onCompleted: {
+            print("XaisCompleted")
+        }) .disposed(by: disposeBag)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    
+    private func myObservable(myValue: String) -> Observable<String> {
+        return Observable.create({ observable in
+            if true {
+                observable.onNext(myValue)
+            } else {
+                observable.onError(NSError(domain: "Prajwal", code: 1, userInfo: nil))
+            }
+            observable.onCompleted()
+            return Disposables.create()
+        })
     }
-
-
 }
-
