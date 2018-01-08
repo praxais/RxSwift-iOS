@@ -13,13 +13,25 @@ class ViewController: UIViewController {
     private let disposeBag = DisposeBag()
     
     @IBAction func buttonClicked(_ sender: UIButton) {
-        myObservable(myValue: "My Value").subscribe(onNext: { (value) in
-            print("Xais -> \(value)")
-        }, onError: { (error) in
-            print("XaisError -> \(error.localizedDescription)")
-        }, onCompleted: {
-            print("XaisCompleted")
-        }) .disposed(by: disposeBag)
+        //Simple button click
+//        myObservable(myValue: "My Value").subscribe(onNext: { (value) in
+//            print("Xais -> \(value)")
+//        }, onError: { (error) in
+//            print("XaisError -> \(error.localizedDescription)")
+//        }, onCompleted: {
+//            print("XaisCompleted")
+//        }) .disposed(by: disposeBag)
+        
+        //Using flatMap
+        getToken().flatMap { (token) in
+            self.getProfile(token: token)
+            }.subscribe(onNext: { (profileString) in
+                print("Xais -> \(profileString)")
+            }, onError: { (error) in
+                print("XaisError -> \(error.localizedDescription)")
+            }, onCompleted: {
+                print("XaisCompleted")
+            }).disposed(by: disposeBag)
     }
     
     override func viewDidLoad() {
@@ -33,6 +45,22 @@ class ViewController: UIViewController {
             } else {
                 observable.onError(NSError(domain: "Prajwal", code: 1, userInfo: nil))
             }
+            observable.onCompleted()
+            return Disposables.create()
+        })
+    }
+    
+    private func getToken() -> Observable<String> {
+        return Observable.create({ observable in
+            observable.onNext("MyToken")
+            observable.onCompleted()
+            return Disposables.create()
+        })
+    }
+    
+    private func getProfile(token: String) -> Observable<String> {
+        return Observable.create({ observable in
+            observable.onNext(token)
             observable.onCompleted()
             return Disposables.create()
         })
